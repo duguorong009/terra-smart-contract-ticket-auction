@@ -2,7 +2,7 @@ use cosmwasm_std::{Addr, Order, StdResult, Storage};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use cw_storage_plus::{Item, Map, U64Key};
+use cw_storage_plus::{Item, Map};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct Config {
@@ -33,24 +33,24 @@ pub struct BetDetail {
     pub bet_amt: u64,
 }
 
-pub const BETS: Map<U64Key, Vec<BetDetail>> = Map::new("bets");
+pub const BETS: Map<u64, Vec<BetDetail>> = Map::new("bets");
 
 // **=================================================
 // ** Bets: Read and write operations         ========
 // **=================================================
 pub fn save_bets_ticket(
     storage: &mut dyn Storage,
-    tid: U64Key,
+    tid: u64,
     bets: Vec<BetDetail>,
 ) -> StdResult<()> {
     BETS.save(storage, tid, &bets)
 }
 
-pub fn read_bets_ticket(storage: &dyn Storage, tid: U64Key) -> StdResult<Vec<BetDetail>> {
+pub fn read_bets_ticket(storage: &dyn Storage, tid: u64) -> StdResult<Vec<BetDetail>> {
     BETS.load(storage, tid)
 }
 
-pub fn remove_bets_ticket(storage: &mut dyn Storage, tid: U64Key) -> StdResult<()> {
+pub fn remove_bets_ticket(storage: &mut dyn Storage, tid: u64) -> StdResult<()> {
     BETS.remove(storage, tid);
     Ok(())
 }
@@ -60,9 +60,7 @@ pub fn read_curr_avail_tickets(storage: &dyn Storage) -> StdResult<Vec<u64>> {
     let keys = keys
         .into_iter()
         .map(|v| {
-            let mut arr: [u8; 8] = [0_u8; 8];
-            arr.copy_from_slice(v.as_slice());
-            u64::from_be_bytes(arr)
+            v.unwrap()
         })
         .collect::<Vec<u64>>();
     Ok(keys)

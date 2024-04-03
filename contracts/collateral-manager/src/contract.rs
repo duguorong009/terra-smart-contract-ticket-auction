@@ -4,7 +4,6 @@ use cosmwasm_std::{
     attr, to_binary, Addr, BankMsg, Binary, Coin, CosmosMsg, Deps, DepsMut, Env, MessageInfo,
     Response, StdResult, Uint128,
 };
-use cw_storage_plus::U64Key;
 
 use crate::state::{read_config, read_stakes, store_config, store_stakes, Config};
 use ticket_auction::collateral_manager::{
@@ -42,7 +41,7 @@ pub fn instantiate(
     )?;
 
     // Initialize the variables
-    store_stakes(deps.storage, U64Key::from(0), vec![])?;
+    store_stakes(deps.storage, 0, vec![])?;
 
     Ok(Response::new()
         .add_attribute("method", "instantiate")
@@ -85,10 +84,10 @@ fn execute_lock_stake(
     }
 
     // Store the stake data.
-    let mut workers = read_stakes(deps.storage, U64Key::from(tid))?;
+    let mut workers = read_stakes(deps.storage, tid)?;
     workers.push(info.sender);
 
-    store_stakes(deps.storage, U64Key::from(tid), workers)?;
+    store_stakes(deps.storage, tid, workers)?;
 
     Ok(Response::new().add_attribute("method", "lock_stake"))
 }
@@ -106,12 +105,12 @@ fn execute_release_stake(
     }
 
     // Remove stake record from STAKES
-    let workers = read_stakes(deps.storage, U64Key::from(msg.tid))?;
+    let workers = read_stakes(deps.storage, msg.tid)?;
     let workers = workers
         .into_iter()
         .filter(|w| *w != msg.worker)
         .collect::<Vec<Addr>>();
-    store_stakes(deps.storage, U64Key::from(msg.tid), workers)?;
+    store_stakes(deps.storage, msg.tid, workers)?;
 
     // Build the message to release the stake.
     let messages: Vec<CosmosMsg> = vec![CosmosMsg::Bank(BankMsg::Send {
@@ -144,7 +143,7 @@ fn query_ticket(deps: Deps, tid: u64) -> StdResult<TicketInfoResponse> {
 }
 
 fn query_stake_status(deps: Deps, msg: QueryStakeStatusMsg) -> StdResult<bool> {
-    let stakes = read_stakes(deps.storage, U64Key::from(msg.tid))?;
+    let stakes = read_stakes(deps.storage, msg.tid)?;
     let is_staked = stakes.into_iter().any(|w| w == msg.worker);
     Ok(is_staked)
 }

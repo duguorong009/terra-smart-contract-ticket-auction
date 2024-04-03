@@ -4,7 +4,6 @@ use cosmwasm_std::{
     attr, to_binary, Binary, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
     WasmMsg,
 };
-use cw_storage_plus::U64Key;
 
 use crate::state::{
     read_bets_ticket, read_config, read_curr_avail_tickets, remove_bets_ticket, save_bets_ticket,
@@ -35,7 +34,7 @@ pub fn instantiate(
     save_config(deps.storage, config)?;
 
     // Initialize variables
-    save_bets_ticket(deps.storage, U64Key::from(0), vec![])?;
+    save_bets_ticket(deps.storage, 0, vec![])?;
 
     Ok(Response::new()
         .add_attribute("method", "instantiate")
@@ -79,12 +78,12 @@ fn place_bet(deps: DepsMut, info: MessageInfo, msg: PlaceBetMsg) -> StdResult<Re
     }
 
     // Save bet.
-    let mut bets = read_bets_ticket(deps.storage, U64Key::from(msg.ticket_id))?;
+    let mut bets = read_bets_ticket(deps.storage, msg.ticket_id)?;
     bets.push(BetDetail {
         worker: info.sender,
         bet_amt: msg.bet_amount,
     });
-    save_bets_ticket(deps.storage, U64Key::from(msg.ticket_id), bets)?;
+    save_bets_ticket(deps.storage, msg.ticket_id, bets)?;
 
     Ok(Response::new().add_attributes(vec![attr("method", "place_bet")]))
 }
@@ -114,7 +113,7 @@ fn decide_winning_bet(deps: DepsMut, env: Env, info: MessageInfo, tid: u64) -> S
 
     // Decide winning bet
     // Get the bets for the ticket
-    let curr_bets = read_bets_ticket(deps.storage, U64Key::from(tid))?;
+    let curr_bets = read_bets_ticket(deps.storage, tid)?;
 
     // Choose the winning bet(lowest bet amount)
     let winning_bet = match curr_bets.iter().min_by(|x, y| x.bet_amt.cmp(&y.bet_amt)) {
@@ -123,7 +122,7 @@ fn decide_winning_bet(deps: DepsMut, env: Env, info: MessageInfo, tid: u64) -> S
     };
 
     // Clear the bets data & prepare the msgs to return collaterals.
-    remove_bets_ticket(deps.storage, U64Key::from(tid))?;
+    remove_bets_ticket(deps.storage, tid)?;
     let msgs: Vec<CosmosMsg> = vec![CosmosMsg::Wasm(WasmMsg::Execute {
         contract_addr: config.ticket_manager,
         msg: to_binary(&TicketExecuteMsg::SaveTicketWorker(TicketWorkerPair {
@@ -158,7 +157,7 @@ fn query_bet_avail_tickets(deps: Deps) -> StdResult<Vec<u64>> {
 // Query the current bets for ticket id.
 fn query_curr_active_bets(deps: Deps, tid: u64) -> StdResult<Vec<BetDetail>> {
     // Query the current bets for ticket(tid)
-    let curr_bets = read_bets_ticket(deps.storage, U64Key::from(tid))?;
+    let curr_bets = read_bets_ticket(deps.storage, tid)?;
     Ok(curr_bets)
 }
 

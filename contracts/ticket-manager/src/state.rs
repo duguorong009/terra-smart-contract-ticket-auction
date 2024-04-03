@@ -2,7 +2,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 use cosmwasm_std::{Order, StdResult, Storage};
-use cw_storage_plus::{Item, Map, U64Key};
+use cw_storage_plus::{Item, Map};
 
 use ticket_auction::{
     error::TAError,
@@ -55,20 +55,20 @@ pub fn read_config(storage: &dyn Storage) -> StdResult<Config> {
     CONFIG.load(storage)
 }
 
-pub const TWPAIR: Map<U64Key, String> = Map::new("TicketWorkerPair");
+pub const TWPAIR: Map<u64, String> = Map::new("TicketWorkerPair");
 // **=================================================
 // ** TWPAIR: Read and write operations       ========
 // **=================================================
 // Store pair
 pub fn store_tw_pair(storage: &mut dyn Storage, msg: TicketWorkerPair) -> StdResult<()> {
-    let key = U64Key::from(msg.tid);
+    let key = msg.tid;
     let worker = msg.worker;
     TWPAIR.save(storage, key, &worker)
 }
 
 // Read pair
 pub fn read_worker_for_ticket(storage: &dyn Storage, tid: u64) -> StdResult<String> {
-    TWPAIR.load(storage, U64Key::from(tid))
+    TWPAIR.load(storage, tid)
 }
 
 // Read all of tickets(array of won bots)
@@ -76,9 +76,7 @@ pub fn read_all_assigned_tickets(storage: &dyn Storage) -> StdResult<Vec<u64>> {
     let keys = TWPAIR
         .keys(storage, None, None, Order::Ascending)
         .map(|v| {
-            let mut arr = [0_u8; 8];
-            arr.copy_from_slice(v.as_slice());
-            u64::from_be_bytes(arr)
+            v.unwrap()
         })
         .collect::<Vec<u64>>();
     Ok(keys)
