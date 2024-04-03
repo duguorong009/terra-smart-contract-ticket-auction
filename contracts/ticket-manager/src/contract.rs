@@ -1,7 +1,7 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    attr, to_binary, Binary, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
+    attr, to_json_binary, Binary, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
     Uint128, WasmMsg,
 };
 
@@ -241,7 +241,7 @@ fn assess_submission(
     // Create msg to be sent to admin contract for applying slash perc.
     let msgs: Vec<CosmosMsg> = vec![CosmosMsg::Wasm(WasmMsg::Execute {
         contract_addr: config.admin_board,
-        msg: to_binary(&AdminExecuteMsg::ReleaseStakeWithSlash(SlashMsg {
+        msg: to_json_binary(&AdminExecuteMsg::ReleaseStakeWithSlash(SlashMsg {
             tid: msg.tid,
             worker: deps.api.addr_validate(msg.worker.as_str())?,
             slash_perc,
@@ -281,10 +281,10 @@ fn execute_post_config(
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        QueryMsg::QueryTicketInfo { tid } => to_binary(&query_ticket(deps, tid)?),
-        QueryMsg::QueryTickets {} => to_binary(&query_tickets(deps)?),
-        QueryMsg::QueryTicketWorkerPairs {} => to_binary(&query_ticket_worker_pairs(deps)?),
-        QueryMsg::QueryTicketWorker { tid } => to_binary(&query_ticket_worker(deps, tid)?),
+        QueryMsg::QueryTicketInfo { tid } => to_json_binary(&query_ticket(deps, tid)?),
+        QueryMsg::QueryTickets {} => to_json_binary(&query_tickets(deps)?),
+        QueryMsg::QueryTicketWorkerPairs {} => to_json_binary(&query_ticket_worker_pairs(deps)?),
+        QueryMsg::QueryTicketWorker { tid } => to_json_binary(&query_ticket_worker(deps, tid)?),
     }
 }
 

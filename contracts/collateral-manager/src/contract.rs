@@ -1,7 +1,7 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    attr, to_binary, Addr, BankMsg, Binary, Coin, CosmosMsg, Deps, DepsMut, Env, MessageInfo,
+    attr, to_json_binary, Addr, BankMsg, Binary, Coin, CosmosMsg, Deps, DepsMut, Env, MessageInfo,
     Response, StdResult, Uint128,
 };
 
@@ -128,8 +128,8 @@ fn execute_release_stake(
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        QueryMsg::QueryTicket { tid } => to_binary(&query_ticket(deps, tid)?),
-        QueryMsg::QueryStakeStatus(msg) => to_binary(&query_stake_status(deps, msg)?),
+        QueryMsg::QueryTicket { tid } => to_json_binary(&query_ticket(deps, tid)?),
+        QueryMsg::QueryStakeStatus(msg) => to_json_binary(&query_stake_status(deps, msg)?),
     }
 }
 
@@ -137,7 +137,7 @@ fn query_ticket(deps: Deps, tid: u64) -> StdResult<TicketInfoResponse> {
     let config = read_config(deps.storage)?;
     let ticket_info_response: TicketInfoResponse = deps.querier.query_wasm_smart(
         config.ticket_manager,
-        &to_binary(&TicketQueryMsg::QueryTicketInfo { tid })?,
+        &to_json_binary(&TicketQueryMsg::QueryTicketInfo { tid })?,
     )?;
     Ok(ticket_info_response)
 }

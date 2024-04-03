@@ -3,7 +3,7 @@ use std::ops::{Mul, Sub};
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    attr, to_binary, Binary, CosmosMsg, Decimal, Deps, DepsMut, Env, MessageInfo, Response,
+    attr, to_json_binary, Binary, CosmosMsg, Decimal, Deps, DepsMut, Env, MessageInfo, Response,
     StdResult, Uint128, WasmMsg,
 };
 
@@ -105,7 +105,7 @@ fn execute_add_ticket(
 
     let msgs: Vec<CosmosMsg> = vec![CosmosMsg::Wasm(WasmMsg::Execute {
         contract_addr: ticket_manager,
-        msg: to_binary(&TicketExecuteMsg::AddTicket(msg))?,
+        msg: to_json_binary(&TicketExecuteMsg::AddTicket(msg))?,
         funds: vec![],
     })];
 
@@ -140,7 +140,7 @@ fn execute_update_ticket(
 
     let msgs: Vec<CosmosMsg> = vec![CosmosMsg::Wasm(WasmMsg::Execute {
         contract_addr: ticket_manager,
-        msg: to_binary(&TicketExecuteMsg::UpdateTicket(msg))?,
+        msg: to_json_binary(&TicketExecuteMsg::UpdateTicket(msg))?,
         funds: vec![],
     })];
 
@@ -175,7 +175,7 @@ fn execute_remove_ticket(
 
     let msgs: Vec<CosmosMsg> = vec![CosmosMsg::Wasm(WasmMsg::Execute {
         contract_addr: ticket_manager,
-        msg: to_binary(&TicketExecuteMsg::RemoveTicket { tid })?,
+        msg: to_json_binary(&TicketExecuteMsg::RemoveTicket { tid })?,
         funds: vec![],
     })];
 
@@ -210,7 +210,7 @@ fn execute_decide_win_bet(
 
     let msgs: Vec<CosmosMsg> = vec![CosmosMsg::Wasm(WasmMsg::Execute {
         contract_addr: auction_manager,
-        msg: to_binary(&AuctionExecuteMsg::DecideWinningBet { tid })?,
+        msg: to_json_binary(&AuctionExecuteMsg::DecideWinningBet { tid })?,
         funds: vec![],
     })];
 
@@ -239,7 +239,7 @@ fn execute_release_stake_with_slash(
     // Query the stake amount for tid
     let ticket_info: TicketInfoResponse = deps.querier.query_wasm_smart(
         ticket_manager,
-        &to_binary(&TicketQueryMsg::QueryTicketInfo { tid: msg.tid })?,
+        &to_json_binary(&TicketQueryMsg::QueryTicketInfo { tid: msg.tid })?,
     )?;
     let stake_amount = ticket_info.collateral;
 
@@ -255,7 +255,7 @@ fn execute_release_stake_with_slash(
     };
     let msgs: Vec<CosmosMsg> = vec![CosmosMsg::Wasm(WasmMsg::Execute {
         contract_addr: collateral_manager,
-        msg: to_binary(&CollateralExecuteMsg::ReleaseStake(ReleaseStakeMsg {
+        msg: to_json_binary(&CollateralExecuteMsg::ReleaseStake(ReleaseStakeMsg {
             tid: msg.tid,
             worker: msg.worker,
             amt: release_amt,
@@ -288,7 +288,7 @@ fn execute_create_ticket_manager(
     let msg: CosmosMsg = CosmosMsg::Wasm(WasmMsg::Instantiate {
         admin: Some(env.contract.address.to_string()),
         code_id,
-        msg: to_binary(&TicketInstantiateMsg {
+        msg: to_json_binary(&TicketInstantiateMsg {
             auction_manager: None,
             user_board: None,
         })?,
@@ -319,7 +319,7 @@ fn execute_create_user_board_manager(
     let msg: CosmosMsg = CosmosMsg::Wasm(WasmMsg::Instantiate {
         admin: Some(env.contract.address.to_string()),
         code_id,
-        msg: to_binary(&UserBoardInstantiateMsg {
+        msg: to_json_binary(&UserBoardInstantiateMsg {
             auction_manager: None,
             ticket_manager: None,
             collateral_manater: None,
@@ -357,7 +357,7 @@ fn execute_create_auction_manager(
     let msg: CosmosMsg = CosmosMsg::Wasm(WasmMsg::Instantiate {
         admin: Some(env.contract.address.to_string()),
         code_id,
-        msg: to_binary(&AuctionInstantiateMsg { ticket_manager })?,
+        msg: to_json_binary(&AuctionInstantiateMsg { ticket_manager })?,
         funds: vec![],
         label: "".to_string(),
     });
@@ -396,7 +396,7 @@ fn execute_create_collateral_manager(
     let msg: CosmosMsg = CosmosMsg::Wasm(WasmMsg::Instantiate {
         admin: Some(env.contract.address.to_string()),
         code_id,
-        msg: to_binary(&CollateralInstantiateMsg {
+        msg: to_json_binary(&CollateralInstantiateMsg {
             ticket_manager,
             user_board,
         })?,
@@ -438,8 +438,8 @@ fn execute_post_config(
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        QueryMsg::QueryTicketInfo { tid } => to_binary(&query_ticket_info(deps, tid)?),
-        QueryMsg::QueryTicketWorker { tid } => to_binary(&query_ticket_worker(deps, tid)?),
+        QueryMsg::QueryTicketInfo { tid } => to_json_binary(&query_ticket_info(deps, tid)?),
+        QueryMsg::QueryTicketWorker { tid } => to_json_binary(&query_ticket_worker(deps, tid)?),
     }
 }
 
@@ -453,7 +453,7 @@ fn query_ticket_info(deps: Deps, tid: u64) -> StdResult<TicketInfoResponse> {
 
     let ticket_info: TicketInfoResponse = deps.querier.query_wasm_smart(
         ticket_manager,
-        &to_binary(&TicketQueryMsg::QueryTicketInfo { tid })?,
+        &to_json_binary(&TicketQueryMsg::QueryTicketInfo { tid })?,
     )?;
     Ok(ticket_info)
 }
@@ -468,7 +468,7 @@ fn query_ticket_worker(deps: Deps, tid: u64) -> StdResult<String> {
 
     let worker: String = deps.querier.query_wasm_smart(
         ticket_manager,
-        &to_binary(&TicketQueryMsg::QueryTicketWorker { tid })?,
+        &to_json_binary(&TicketQueryMsg::QueryTicketWorker { tid })?,
     )?;
     Ok(worker)
 }

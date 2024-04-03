@@ -1,7 +1,7 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    attr, to_binary, Binary, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
+    attr, to_json_binary, Binary, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
     WasmMsg,
 };
 use ticket_auction::auction_manager::{
@@ -83,7 +83,7 @@ fn execute_lock_stake(deps: DepsMut, info: MessageInfo, tid: u64) -> StdResult<R
     };
     let msgs: Vec<CosmosMsg> = vec![CosmosMsg::Wasm(WasmMsg::Execute {
         contract_addr: collateral_manager,
-        msg: to_binary(&CollateralExecuteMsg::LockStake { tid })?,
+        msg: to_json_binary(&CollateralExecuteMsg::LockStake { tid })?,
         funds: info.funds,
     })];
 
@@ -108,7 +108,7 @@ fn execute_place_bet(deps: DepsMut, info: MessageInfo, msg: PlaceBetMsg) -> StdR
     };
     let is_staked: bool = deps.querier.query_wasm_smart(
         collateral_manager,
-        &to_binary(&CollateralQueryMsg::QueryStakeStatus(QueryStakeStatusMsg {
+        &to_json_binary(&CollateralQueryMsg::QueryStakeStatus(QueryStakeStatusMsg {
             tid,
             worker,
         }))?,
@@ -124,7 +124,7 @@ fn execute_place_bet(deps: DepsMut, info: MessageInfo, msg: PlaceBetMsg) -> StdR
     };
     let msgs: Vec<CosmosMsg> = vec![CosmosMsg::Wasm(WasmMsg::Execute {
         contract_addr: auction_manager,
-        msg: to_binary(&AuctionPlaceBetMsg {
+        msg: to_json_binary(&AuctionPlaceBetMsg {
             ticket_id: tid,
             workder: info.sender.to_string(),
             bet_amount: msg.bet_amount,
@@ -156,7 +156,7 @@ fn execute_submit_result(
     };
     let right_worker: String = deps.querier.query_wasm_smart(
         ticket_manager.clone(),
-        &to_binary(&TicketQueryMsg::QueryTicketWorker { tid })?,
+        &to_json_binary(&TicketQueryMsg::QueryTicketWorker { tid })?,
     )?;
 
     if worker != right_worker {
@@ -166,7 +166,7 @@ fn execute_submit_result(
     // Call the method of "ticket_manager".
     let msgs: Vec<CosmosMsg> = vec![CosmosMsg::Wasm(WasmMsg::Execute {
         contract_addr: ticket_manager,
-        msg: to_binary(&TicketExecuteMsg::AssessSubmission(TicketResultMsg {
+        msg: to_json_binary(&TicketExecuteMsg::AssessSubmission(TicketResultMsg {
             tid,
             worker: msg.worker,
             result: msg.result,
@@ -206,8 +206,8 @@ fn execute_post_config(
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        QueryMsg::QueryBetAvailTickets {} => to_binary(&query_bet_avail_tickets(deps)?),
-        QueryMsg::QueryStakeStatus(msg) => to_binary(&query_stake_status(deps, msg)?),
+        QueryMsg::QueryBetAvailTickets {} => to_json_binary(&query_bet_avail_tickets(deps)?),
+        QueryMsg::QueryStakeStatus(msg) => to_json_binary(&query_stake_status(deps, msg)?),
     }
 }
 
@@ -219,7 +219,7 @@ fn query_bet_avail_tickets(deps: Deps) -> StdResult<Vec<u64>> {
     };
     let avail_tickets: Vec<u64> = deps.querier.query_wasm_smart(
         auction_manager,
-        &to_binary(&AuctionQueryMsg::BetAvailableTickets {})?,
+        &to_json_binary(&AuctionQueryMsg::BetAvailableTickets {})?,
     )?;
     Ok(avail_tickets)
 }
@@ -233,7 +233,7 @@ fn query_stake_status(deps: Deps, msg: QueryStakeStatusMsg) -> StdResult<bool> {
 
     let stake_status: bool = deps.querier.query_wasm_smart(
         collateral_manager,
-        &to_binary(&CollateralQueryMsg::QueryStakeStatus(msg))?,
+        &to_json_binary(&CollateralQueryMsg::QueryStakeStatus(msg))?,
     )?;
     Ok(stake_status)
 }

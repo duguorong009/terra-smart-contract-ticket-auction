@@ -1,7 +1,7 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    attr, to_binary, Binary, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
+    attr, to_json_binary, Binary, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
     WasmMsg,
 };
 
@@ -65,7 +65,7 @@ fn place_bet(deps: DepsMut, info: MessageInfo, msg: PlaceBetMsg) -> StdResult<Re
     let ticket_manager = config.ticket_manager;
     let tickets: TicketsResponse = deps.querier.query_wasm_smart(
         ticket_manager,
-        &to_binary(&TicketQueryMsg::QueryTickets {})?,
+        &to_json_binary(&TicketQueryMsg::QueryTickets {})?,
     )?;
     let is_exist = tickets.tickets.iter().any(|v| v.id == msg.ticket_id);
     if !is_exist {
@@ -105,7 +105,7 @@ fn decide_winning_bet(deps: DepsMut, env: Env, info: MessageInfo, tid: u64) -> S
     // Validation 3. Given ticket id is valid for decision(If bet_finish_timestamp is passed)
     let ticket_info: TicketInfoResponse = deps.querier.query_wasm_smart(
         config.ticket_manager.clone(),
-        &to_binary(&TicketQueryMsg::QueryTicketInfo { tid })?,
+        &to_json_binary(&TicketQueryMsg::QueryTicketInfo { tid })?,
     )?;
     if env.block.time.seconds() < ticket_info.bet_finish_timestamp {
         return Err(TAError::BetNotFinished.into());
@@ -125,7 +125,7 @@ fn decide_winning_bet(deps: DepsMut, env: Env, info: MessageInfo, tid: u64) -> S
     remove_bets_ticket(deps.storage, tid)?;
     let msgs: Vec<CosmosMsg> = vec![CosmosMsg::Wasm(WasmMsg::Execute {
         contract_addr: config.ticket_manager,
-        msg: to_binary(&TicketExecuteMsg::SaveTicketWorker(TicketWorkerPair {
+        msg: to_json_binary(&TicketExecuteMsg::SaveTicketWorker(TicketWorkerPair {
             tid,
             worker: winning_bet.worker.to_string(),
         }))?,
@@ -142,8 +142,8 @@ fn decide_winning_bet(deps: DepsMut, env: Env, info: MessageInfo, tid: u64) -> S
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        QueryMsg::BetAvailableTickets => to_binary(&query_bet_avail_tickets(deps)?),
-        QueryMsg::CurrActiveBets { tid } => to_binary(&query_curr_active_bets(deps, tid)?),
+        QueryMsg::BetAvailableTickets => to_json_binary(&query_bet_avail_tickets(deps)?),
+        QueryMsg::CurrActiveBets { tid } => to_json_binary(&query_curr_active_bets(deps, tid)?),
     }
 }
 
