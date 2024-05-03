@@ -75,9 +75,7 @@ pub fn read_worker_for_ticket(storage: &dyn Storage, tid: u64) -> StdResult<Stri
 pub fn read_all_assigned_tickets(storage: &dyn Storage) -> StdResult<Vec<u64>> {
     let keys = TWPAIR
         .keys(storage, None, None, Order::Ascending)
-        .map(|v| {
-            v.unwrap()
-        })
+        .map(|v| v.unwrap())
         .collect::<Vec<u64>>();
     Ok(keys)
 }

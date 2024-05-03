@@ -57,11 +57,6 @@ pub fn remove_bets_ticket(storage: &mut dyn Storage, tid: u64) -> StdResult<()> 
 
 pub fn read_curr_avail_tickets(storage: &dyn Storage) -> StdResult<Vec<u64>> {
     let keys = BETS.keys(storage, None, None, Order::Ascending);
-    let keys = keys
-        .into_iter()
-        .map(|v| {
-            v.unwrap()
-        })
-        .collect::<Vec<u64>>();
+    let keys = keys.into_iter().map(|v| v.unwrap()).collect::<Vec<u64>>();
     Ok(keys)
 }

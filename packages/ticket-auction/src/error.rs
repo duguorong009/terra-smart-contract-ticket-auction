@@ -17,7 +17,7 @@ impl From<TAError> for StdError {
         match error {
             TAError::UnnecessaryFunds => {
               StdError::generic_err("Ticket Auction Error: Please do not send any unnecessary funds for this transaction")
-            }, 
+            },
             TAError::NotAuthorized => {
               StdError::generic_err("Not authorized")
             },
