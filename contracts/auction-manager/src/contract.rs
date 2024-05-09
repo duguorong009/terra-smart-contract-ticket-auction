@@ -93,7 +93,7 @@ fn place_bet(deps: DepsMut, info: MessageInfo, msg: PlaceBetMsg) -> StdResult<Re
 fn decide_winning_bet(deps: DepsMut, env: Env, info: MessageInfo, tid: u64) -> StdResult<Response> {
     // Validation 1. Check if tx sender is admin.
     let config = read_config(deps.storage)?;
-    if info.sender != config.admin_board {
+    if info.sender.to_string() != config.admin_board {
         return Err(TAError::NotAuthorized.into());
     }
 

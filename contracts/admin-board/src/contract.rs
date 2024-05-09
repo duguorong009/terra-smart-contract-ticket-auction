@@ -1,10 +1,10 @@
-use std::ops::{Mul, Sub};
+use std::ops::Sub;
 
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    attr, to_json_binary, Binary, CosmosMsg, Decimal, Deps, DepsMut, Env, MessageInfo, Response,
-    StdResult, Uint128, WasmMsg,
+    attr, to_json_binary, Binary, CosmosMsg, Decimal, Deps, DepsMut, Env, Fraction, MessageInfo,
+    Response, StdResult, Uint128, WasmMsg,
 };
 
 use crate::state::{read_config, store_config, Config};
@@ -232,7 +232,7 @@ fn execute_release_stake_with_slash(
         Some(v) => v,
         None => return Err(TAError::NotInitialized.into()),
     };
-    if info.sender != ticket_manager {
+    if info.sender.to_string() != ticket_manager {
         return Err(TAError::NotAuthorized.into());
     }
 
@@ -245,7 +245,8 @@ fn execute_release_stake_with_slash(
 
     // Query the release amount based on given slash percentage.
     let slash_perc = Decimal::from_ratio(msg.slash_perc, Uint128::from(1000u128));
-    let slash_amt = Uint128::from(stake_amount as u128).mul(slash_perc);
+    let slash_amt =
+        Uint128::from(stake_amount as u128) * slash_perc.numerator() / slash_perc.denominator();
     let release_amt = Uint128::from(stake_amount as u128).sub(slash_amt);
 
     // Call the method "ReleaseStake" of collaterral_manager

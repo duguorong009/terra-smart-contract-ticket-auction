@@ -68,7 +68,7 @@ fn execute_lock_stake(
 ) -> StdResult<Response> {
     // validation 1: Check if the tx sender is user_board
     let config = read_config(deps.storage)?;
-    if info.sender != config.user_board {
+    if info.sender.to_string() != config.user_board {
         return Err(TAError::NotAuthorized.into());
     }
 
@@ -100,7 +100,7 @@ fn execute_release_stake(
 ) -> StdResult<Response> {
     // Validate if the tx sender is admin.
     let config = read_config(deps.storage)?;
-    if info.sender != config.admin_board {
+    if info.sender.to_string() != config.admin_board {
         return Err(TAError::NotAuthorized.into());
     }
 

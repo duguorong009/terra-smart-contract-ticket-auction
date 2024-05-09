@@ -83,7 +83,7 @@ fn add_ticket(
 ) -> StdResult<Response> {
     // Validate if the tx sender is admin.
     let config = read_config(deps.storage)?;
-    if info.sender != config.admin_board {
+    if info.sender.to_string() != config.admin_board {
         return Err(TAError::NotAuthorized.into());
     }
 
@@ -112,7 +112,7 @@ fn update_ticket(
 ) -> StdResult<Response> {
     // Validate if the tx sender is admin.
     let config = read_config(deps.storage)?;
-    if info.sender != config.admin_board {
+    if info.sender.to_string() != config.admin_board {
         return Err(TAError::NotAuthorized.into());
     }
 
@@ -158,7 +158,7 @@ fn update_ticket(
 fn remove_ticket(deps: DepsMut, _env: Env, info: MessageInfo, id: u64) -> StdResult<Response> {
     // Validate if the tx sender is admin.
     let config = read_config(deps.storage)?;
-    if info.sender != config.admin_board {
+    if info.sender.to_string() != config.admin_board {
         return Err(TAError::NotAuthorized.into());
     }
 
@@ -185,7 +185,7 @@ fn save_ticket_worker(
         return Err(TAError::NotInitialized.into());
     }
     let auction_manager = config.auction_manager.unwrap();
-    if info.sender != auction_manager {
+    if info.sender.to_string() != auction_manager {
         return Err(TAError::NotAuthorized.into());
     }
 
@@ -266,7 +266,7 @@ fn execute_post_config(
     }
     // Validation 2: Check if tx sender is admin wallet
     let mut config = read_config(deps.storage)?;
-    if info.sender != config.admin_board {
+    if info.sender.to_string() != config.admin_board {
         return Err(TAError::NotAuthorized.into());
     }
 

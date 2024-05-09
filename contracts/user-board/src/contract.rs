@@ -159,7 +159,7 @@ fn execute_submit_result(
         &to_json_binary(&TicketQueryMsg::QueryTicketWorker { tid })?,
     )?;
 
-    if worker != right_worker {
+    if worker.to_string() != right_worker {
         return Err(TAError::NotAuthorized.into());
     }
 
@@ -190,7 +190,7 @@ fn execute_post_config(
     }
     // Validation 2: Check if tx sender is admin wallet
     let mut config = read_config(deps.storage)?;
-    if info.sender != config.admin_board {
+    if info.sender.to_string() != config.admin_board {
         return Err(TAError::NotAuthorized.into());
     }
 
