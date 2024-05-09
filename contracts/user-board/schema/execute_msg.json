@@ -1,15 +1,15 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "ExecuteMsg",
-  "anyOf": [
+  "oneOf": [
     {
       "type": "object",
       "required": [
-        "increment"
+        "PlaceBet"
       ],
       "properties": {
-        "increment": {
-          "type": "object"
+        "PlaceBet": {
+          "$ref": "#/definitions/PlaceBetMsg"
         }
       },
       "additionalProperties": false
@@ -17,23 +17,113 @@
     {
       "type": "object",
       "required": [
-        "reset"
+        "LockStake"
       ],
       "properties": {
-        "reset": {
+        "LockStake": {
           "type": "object",
           "required": [
-            "count"
+            "tid"
           ],
           "properties": {
-            "count": {
+            "tid": {
               "type": "integer",
-              "format": "int32"
+              "format": "uint64",
+              "minimum": 0.0
             }
           }
         }
       },
       "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "SubmitResult"
+      ],
+      "properties": {
+        "SubmitResult": {
+          "$ref": "#/definitions/TicketResultMsg"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "PostConfig"
+      ],
+      "properties": {
+        "PostConfig": {
+          "$ref": "#/definitions/PostConfigMsg"
+        }
+      },
+      "additionalProperties": false
     }
-  ]
+  ],
+  "definitions": {
+    "PlaceBetMsg": {
+      "type": "object",
+      "required": [
+        "bet_amount",
+        "ticket_id"
+      ],
+      "properties": {
+        "bet_amount": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "ticket_id": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        }
+      }
+    },
+    "PostConfigMsg": {
+      "type": "object",
+      "properties": {
+        "auction_manager": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "collateral_manager": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ticket_manager": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "TicketResultMsg": {
+      "type": "object",
+      "required": [
+        "result",
+        "tid",
+        "worker"
+      ],
+      "properties": {
+        "result": {
+          "type": "string"
+        },
+        "tid": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "worker": {
+          "type": "string"
+        }
+      }
+    }
+  }
 }

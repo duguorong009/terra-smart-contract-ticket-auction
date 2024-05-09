@@ -1,15 +1,47 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "QueryMsg",
-  "anyOf": [
+  "oneOf": [
     {
       "type": "object",
       "required": [
-        "get_count"
+        "QueryTicketInfo"
       ],
       "properties": {
-        "get_count": {
-          "type": "object"
+        "QueryTicketInfo": {
+          "type": "object",
+          "required": [
+            "tid"
+          ],
+          "properties": {
+            "tid": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "QueryTicketWorker"
+      ],
+      "properties": {
+        "QueryTicketWorker": {
+          "type": "object",
+          "required": [
+            "tid"
+          ],
+          "properties": {
+            "tid": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            }
+          }
         }
       },
       "additionalProperties": false

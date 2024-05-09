@@ -1,15 +1,71 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "QueryMsg",
-  "anyOf": [
+  "oneOf": [
     {
       "type": "object",
       "required": [
-        "get_count"
+        "QueryTickets"
       ],
       "properties": {
-        "get_count": {
+        "QueryTickets": {
           "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "QueryTicketInfo"
+      ],
+      "properties": {
+        "QueryTicketInfo": {
+          "type": "object",
+          "required": [
+            "tid"
+          ],
+          "properties": {
+            "tid": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "QueryTicketWorkerPairs"
+      ],
+      "properties": {
+        "QueryTicketWorkerPairs": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "QueryTicketWorker"
+      ],
+      "properties": {
+        "QueryTicketWorker": {
+          "type": "object",
+          "required": [
+            "tid"
+          ],
+          "properties": {
+            "tid": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            }
+          }
         }
       },
       "additionalProperties": false

@@ -1,15 +1,31 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "QueryMsg",
-  "anyOf": [
+  "oneOf": [
+    {
+      "type": "string",
+      "enum": [
+        "BetAvailableTickets"
+      ]
+    },
     {
       "type": "object",
       "required": [
-        "get_count"
+        "CurrActiveBets"
       ],
       "properties": {
-        "get_count": {
-          "type": "object"
+        "CurrActiveBets": {
+          "type": "object",
+          "required": [
+            "tid"
+          ],
+          "properties": {
+            "tid": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            }
+          }
         }
       },
       "additionalProperties": false

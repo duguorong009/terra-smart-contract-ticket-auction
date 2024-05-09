@@ -1,17 +1,18 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "State",
+  "title": "QueryStakeStatusMsg",
   "type": "object",
   "required": [
-    "count",
-    "owner"
+    "tid",
+    "worker"
   ],
   "properties": {
-    "count": {
+    "tid": {
       "type": "integer",
-      "format": "int32"
+      "format": "uint64",
+      "minimum": 0.0
     },
-    "owner": {
+    "worker": {
       "$ref": "#/definitions/Addr"
     }
   },
