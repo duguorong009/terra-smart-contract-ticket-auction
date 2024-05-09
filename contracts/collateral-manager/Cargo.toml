@@ -27,8 +27,6 @@ incremental = false
 overflow-checks = true
 
 [features]
-# for more explicit tests, cargo test --features=backtraces
-backtraces = ["cosmwasm-std/backtraces"]
 # use library feature to disable all instantiate/execute/query exports
 library = []
 
@@ -41,8 +39,8 @@ optimize = """docker run --rm -v "$(pwd)":/code \
 
 [dependencies]
 ticket-auction = { version = "0.1.0", path = "../../packages/ticket-auction"}
-cosmwasm-std = { version = "1.5.0" }
-cw-storage-plus = "1.2.0"
+cosmwasm-std = { version = "2.0.2" }
+cw-storage-plus = "2.0.0"
 cw2 = "2.0.0"
 schemars = "0.8.3"
 serde = { version = "1.0.127", default-features = false, features = ["derive"] }
